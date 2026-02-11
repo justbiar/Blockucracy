@@ -463,7 +463,7 @@ export default function POAPage() {
                         color: 'rgba(240, 240, 240, 0.4)',
                         fontStyle: 'italic',
                     }}>
-                        "Not by stake alone, but by mind and code"
+                        &quot;Not by stake alone, but by mind and code&quot;
                     </div>
 
                     {/* Separator */}

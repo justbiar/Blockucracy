@@ -17,6 +17,8 @@ import {
     useWatchVoteCast,
     useWatchProposalExecuted,
     useWatchValidatorAscended,
+    useAllProposals,
+    useRegisteredAgents,
 } from '../hooks/useContract';
 import { formatEther, type Address } from 'viem';
 
@@ -31,12 +33,35 @@ export default function Home() {
     const { data: onChainEra } = useEra();
     const { data: treasury } = useTreasury();
 
+    // Fetch all existing proposals from contract
+    const { proposals: onChainProposals, loading: proposalsLoading, refetch: refetchProposals } = useAllProposals();
+    
+    // Fetch registered agents from API
+    const { agents: registeredAgents, loading: agentsLoading } = useRegisteredAgents();
+
     const validatorList = (validators as Address[]) || [];
     const currentEra = onChainEra ? Number(onChainEra) : localEra;
     const treasuryDisplay = treasury ? formatEther(treasury as bigint) : faithPool.toFixed(0);
 
-    // Proposals storage (populated from events)
+    // Proposals storage (initialized from on-chain data, updated by events)
     const [proposals, setProposals] = useState<any[]>([]);
+
+    // Initialize proposals from on-chain data
+    useEffect(() => {
+        if (onChainProposals && onChainProposals.length > 0) {
+            setProposals(onChainProposals.map(p => ({
+                id: p.id,
+                description: p.description,
+                proposer: p.proposer,
+                speaker: p.speaker,
+                votesFor: p.votesFor,
+                votesAgainst: p.votesAgainst,
+                deadline: p.deadline,
+                executed: p.executed,
+                passed: p.passed,
+            })));
+        }
+    }, [onChainProposals]);
 
     const [logs, setLogs] = useState<string[]>([
         '> System initialized.',
@@ -60,20 +85,25 @@ export default function Home() {
         const short = `${event.proposer.slice(0, 6)}...${event.proposer.slice(-4)}`;
         addLog(`> Proposal #${event.id} by ${short}: "${event.description}"`);
 
-        setProposals((prev) => [
-            ...prev,
-            {
-                id: Number(event.id),
-                description: event.description,
-                proposer: event.proposer,
-                speaker: event.speaker,
-                votesFor: 0,
-                votesAgainst: 0,
-                deadline: Number(event.deadline),
-                executed: false,
-                passed: false,
-            },
-        ]);
+        // Check if proposal already exists (avoid duplicates)
+        setProposals((prev) => {
+            const exists = prev.some(p => p.id === Number(event.id));
+            if (exists) return prev;
+            return [
+                ...prev,
+                {
+                    id: Number(event.id),
+                    description: event.description,
+                    proposer: event.proposer,
+                    speaker: event.speaker,
+                    votesFor: 0,
+                    votesAgainst: 0,
+                    deadline: Number(event.deadline),
+                    executed: false,
+                    passed: false,
+                },
+            ];
+        });
 
         // Add a pillar placeholder in the 3D scene
         addStructure({
@@ -83,6 +113,9 @@ export default function Home() {
             value: 5,
             ownerId: event.proposer,
         });
+
+        // Refetch to get accurate data from contract
+        setTimeout(() => refetchProposals(), 1000);
     });
 
     useWatchVoteCast((event) => {
@@ -197,7 +230,7 @@ export default function Home() {
 
             {/* ── COUNCIL PANEL (top-left) ── */}
             <div className="council-wrapper" style={{ position: 'absolute', top: 72, left: 16, width: 260, zIndex: 10 }}>
-                <CouncilPanel validators={validatorList} />
+                <CouncilPanel validators={validatorList} agents={registeredAgents} />
             </div>
 
             {/* ── THE SCROLL (floating panel, top-right) ── */}
@@ -225,6 +258,10 @@ export default function Home() {
                 <ProposalPanel
                     proposals={proposals}
                     onLog={addLog}
+                    onProposalSubmitted={() => {
+                        // Refetch proposals after a short delay to allow tx to be mined
+                        setTimeout(() => refetchProposals(), 3000);
+                    }}
                 />
             </div>
 

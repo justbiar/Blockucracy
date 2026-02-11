@@ -158,7 +158,11 @@ export default function ProposalPanel({ proposals, onProposalSubmitted, onLog }:
         onLog?.(`> Proposal #${proposalId} execution (awaiting tx...)`);
     };
 
-    const now = Math.floor(Date.now() / 1000);
+    const [now, setNow] = useState(0);
+
+    useEffect(() => {
+        setNow(Math.floor(Date.now() / 1000));
+    }, []);
 
     return (
         <div style={panelStyle}>

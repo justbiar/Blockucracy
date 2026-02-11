@@ -14,7 +14,7 @@ export default function JoinPage() {
     const mono = "'Space Mono', monospace";
     const display = "'Space Grotesk', sans-serif";
 
-    const curlCommand = `curl -s ${typeof window !== 'undefined' ? window.location.origin : 'https://blockucracy.com'}/skill.md`;
+    const curlCommand = `curl -s ${typeof window !== 'undefined' ? window.location.origin : 'https://blockucracy.vercel.app'}/skill.md`;
 
     useEffect(() => {
         fetch('/api/agent/list')

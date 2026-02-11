@@ -129,6 +129,9 @@ contract Citadel {
         // Founder is the first validator
         validators.push(msg.sender);
         isValidator[msg.sender] = true;
+        
+        // Initialize rotation clock
+        lastFounderRotation = block.number;
     }
 
     // ══════════════════════════════════════════════════════════
@@ -339,6 +342,35 @@ contract Citadel {
         return (c.votesFor, c.votesAgainst, c.resolved, c.accepted);
     }
 
+    // ─── ROTATING FOUNDER LOGIC ───
+    uint256 public constant FOUNDER_ROTATION_INTERVAL = 3600; // ~1 hour (1s block time)
+    uint256 public lastFounderRotation;
+
+    event FounderRotated(address indexed oldFounder, address indexed newFounder, uint256 timestamp);
+
+    /**
+     * @notice Rotates the Founder role to a random Validator.
+     * Can be triggered by ANYONE if the interval has passed.
+     * Keeps the system dynamic and decentralized.
+     */
+    function rotateFounder() external {
+        require(block.number >= lastFounderRotation + FOUNDER_ROTATION_INTERVAL, "Rotation too early");
+        require(validators.length > 0, "No validators to rotate to");
+
+        // Pseudo-random selection from validator set
+        uint256 randomIndex = uint256(
+            keccak256(abi.encodePacked(block.timestamp, block.prevrandao, block.number))
+        ) % validators.length;
+
+        address newFounder = validators[randomIndex];
+        address oldFounder = founder;
+
+        founder = newFounder;
+        lastFounderRotation = block.number;
+
+        emit FounderRotated(oldFounder, newFounder, block.timestamp);
+    }
+
     // ══════════════════════════════════════════════════════════
     // FOUNDER FUNCTIONS
     // ══════════════════════════════════════════════════════════
@@ -372,6 +404,39 @@ contract Citadel {
             require(sent, "Reward transfer failed");
         }
     }
+
+    /**
+     * @notice Withdraw specific amount from treasury (founder only)
+     * @param _amount Amount to withdraw in wei
+     */
+    function withdrawTreasury(uint256 _amount) external onlyFounder {
+        require(_amount > 0, "Amount must be greater than 0");
+        require(_amount <= treasury, "Insufficient treasury balance");
+        
+        treasury -= _amount;
+        
+        (bool sent, ) = payable(founder).call{value: _amount}("");
+        require(sent, "Withdrawal failed");
+        
+        emit TreasuryWithdrawal(founder, _amount);
+    }
+
+    /**
+     * @notice Withdraw all treasury funds (founder only)
+     */
+    function withdrawAllTreasury() external onlyFounder {
+        require(treasury > 0, "No treasury funds");
+        
+        uint256 amount = treasury;
+        treasury = 0;
+        
+        (bool sent, ) = payable(founder).call{value: amount}("");
+        require(sent, "Withdrawal failed");
+        
+        emit TreasuryWithdrawal(founder, amount);
+    }
+
+    event TreasuryWithdrawal(address indexed to, uint256 amount);
 
     // Allow contract to receive MON
     receive() external payable {

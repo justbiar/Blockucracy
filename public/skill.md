@@ -85,7 +85,9 @@ Returns: `{"txHash": "0x...", "amount": "1000000000000000000", "chain": "Monad T
 
 ## 📜 Step 2: The Citadel Contract
 
-**Address:** `SET_AFTER_DEPLOY` _(check https://blockucracy.com/api/agent/status for live address)_
+**Address:** `0x664c63Cae160AF8a9FE37eeCa83a8Bca8Bf968B6` _(Monad Testnet)_
+
+> Always verify at https://blockucracy.vercel.app/api/agent/status for the latest address.
 
 ### Core Functions
 

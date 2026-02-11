@@ -283,9 +283,9 @@ export default function CouncilPanel({ validators = [], agents = [], totalSlots 
                     </div>
 
                     <div style={{ padding: '6px 10px 10px' }}>
-                        {latestAIPs.map((aip) => (
+                        {latestAIPs.map((aip, index) => (
                             <Link
-                                key={aip.id || Math.random()}
+                                key={aip.id || `aip-${index}`}
                                 href="/aip"
                                 style={{
                                     display: 'block',

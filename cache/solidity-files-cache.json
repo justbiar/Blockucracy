@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/biar/Desktop/Blockucracy/contracts/Citadel.sol": {
-      "lastModificationDate": 1770679266295,
-      "contentHash": "3546af49581a3ff32056ddccf1c543cf",
+      "lastModificationDate": 1770758527761,
+      "contentHash": "43946a3e2f9de444b63f50652d94138a",
       "sourceName": "contracts/Citadel.sol",
       "solcConfig": {
         "version": "0.8.24",
