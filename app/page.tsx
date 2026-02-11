@@ -3,10 +3,11 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useStore, StructureType } from '../store/useStore';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAccount } from 'wagmi';
 import ConnectButton from '../components/ConnectButton';
+import { useLanguage } from '../contexts/LanguageContext';
 import ProposalPanel from '../components/ProposalPanel';
 import CouncilPanel from '../components/CouncilPanel';
 import {
@@ -27,6 +28,7 @@ const DigitalTemple = dynamic(() => import('../components/DigitalTemple'), { ssr
 export default function Home() {
     const { faithPool, era: localEra, structures, addStructure } = useStore();
     const { address, isConnected } = useAccount();
+    const { t, language, setLanguage } = useLanguage();
 
     // On-chain reads (gracefully handle undeployed contract)
     const { data: validators } = useValidators();
@@ -35,7 +37,7 @@ export default function Home() {
 
     // Fetch all existing proposals from contract
     const { proposals: onChainProposals, loading: proposalsLoading, refetch: refetchProposals } = useAllProposals();
-    
+
     // Fetch registered agents from API
     const { agents: registeredAgents, loading: agentsLoading } = useRegisteredAgents();
 
@@ -62,6 +64,12 @@ export default function Home() {
             })));
         }
     }, [onChainProposals]);
+
+    // Keep a ref to proposals for accessing in event handlers without dependency issues
+    const proposalsRef = useRef(proposals);
+    useEffect(() => {
+        proposalsRef.current = proposals;
+    }, [proposals]);
 
     const [logs, setLogs] = useState<string[]>([
         '> System initialized.',
@@ -105,15 +113,6 @@ export default function Home() {
             ];
         });
 
-        // Add a pillar placeholder in the 3D scene
-        addStructure({
-            x: (Math.random() - 0.5) * 24,
-            y: (Math.random() - 0.5) * 24,
-            type: 'pillar',
-            value: 5,
-            ownerId: event.proposer,
-        });
-
         // Refetch to get accurate data from contract
         setTimeout(() => refetchProposals(), 1000);
     });
@@ -138,8 +137,8 @@ export default function Home() {
     useWatchProposalExecuted((event) => {
         addLog(
             event.passed
-                ? `> ✓ Proposal #${event.id} PASSED — Pillar of Consensus erected`
-                : `> ✕ Proposal #${event.id} REJECTED — Fallen Obelisk crumbles`
+                ? `> ✓ Proposal #${event.id} PASSED — The physical world reshapes...`
+                : `> ✕ Proposal #${event.id} REJECTED — The vision fades.`
         );
 
         setProposals((prev) =>
@@ -150,15 +149,36 @@ export default function Home() {
             )
         );
 
-        // 3D construction based on result
-        const type: StructureType = event.passed ? 'obelisk' : 'node';
-        addStructure({
-            x: (Math.random() - 0.5) * 24,
-            y: (Math.random() - 0.5) * 24,
-            type,
-            value: Number(event.votesFor),
-            ownerId: 'council',
-        });
+        // Only generate structure if passed
+        if (event.passed) {
+            // Find proposal description to determine type
+            const proposal = proposalsRef.current.find(p => p.id === Number(event.id));
+            const desc = proposal?.description.toLowerCase() || '';
+
+            let type: StructureType = 'pillar'; // Default: Governance
+
+            // Heuristic for type deduction
+            if (desc.match(/tech|code|opt|bug|fix|upgrade|latency/)) {
+                type = 'obelisk'; // Technical
+            } else if (desc.match(/eco|treasury|fund|grant|social|comm/)) {
+                type = 'node'; // Economic/Social
+            }
+
+            addStructure({
+                x: (Math.random() - 0.5) * 24,
+                y: (Math.random() - 0.5) * 24,
+                type,
+                value: Number(event.votesFor) * 5, // Value scaled by votes
+                ownerId: 'council',
+            });
+
+            const names: Record<StructureType, string> = {
+                pillar: 'Pillar of Consensus',
+                obelisk: 'Obelisk of Law',
+                node: 'Validator Node',
+            };
+            addLog(`> ${names[type]} erected from Proposal #${event.id}`);
+        }
     });
 
     useWatchValidatorAscended((event) => {
@@ -173,28 +193,6 @@ export default function Home() {
             ownerId: event.newValidator,
         });
     });
-
-    // ── LOCAL SUMMON (for demo without contract) ──
-    const handleAddStructure = useCallback(
-        (type: StructureType) => {
-            const x = (Math.random() - 0.5) * 24;
-            const y = (Math.random() - 0.5) * 24;
-            const value = Math.floor(Math.random() * 10) + 2;
-
-            addStructure({
-                x, y, type, value,
-                ownerId: address || 'anon-' + Math.random().toString(36).substr(2, 4),
-            });
-
-            const names: Record<StructureType, string> = {
-                pillar: 'Pillar of Consensus',
-                obelisk: 'Obelisk of Law',
-                node: 'Validator Node',
-            };
-            addLog(`> ${names[type]} erected — ${value} $MON`);
-        },
-        [addStructure, address, addLog]
-    );
 
     const eraName = currentEra <= 2 ? 'The Void' : currentEra <= 5 ? 'Genesis' : 'Ascension';
 
@@ -220,10 +218,17 @@ export default function Home() {
                 </div>
                 <div className="nav-links">
                     <span className="nav-link active">Citadel</span>
-                    <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>Blockucracy</Link>
+                    <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.governance}</Link>
                     <Link href="/aip" className="nav-link" style={{ textDecoration: 'none', color: '#FFD700' }}>AIP</Link>
-                    <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>Join</Link>
+                    <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>{t.nav.join}</Link>
                     <Link href="/poa" className="nav-link" style={{ textDecoration: 'none' }}>Proof-of-Agent</Link>
+                    <button
+                        onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
+                        className="nav-link"
+                        style={{ background: 'transparent', border: 'none', padding: 0 }}
+                    >
+                        [{language.toUpperCase()}]
+                    </button>
                 </div>
                 <ConnectButton />
             </nav>
@@ -257,6 +262,7 @@ export default function Home() {
             <div className="proposal-wrapper" style={{ position: 'absolute', top: 72, left: 290, width: 300, maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', zIndex: 10 }}>
                 <ProposalPanel
                     proposals={proposals}
+                    agents={registeredAgents}
                     onLog={addLog}
                     onProposalSubmitted={() => {
                         // Refetch proposals after a short delay to allow tx to be mined
@@ -270,7 +276,7 @@ export default function Home() {
                 Epoch {currentEra} · Monad Parallel Truth
             </div>
 
-            {/* ── SUMMON CONTROLS (LOCAL DEMO) ── */}
+            {/* ── FILTER VIEW (Restored Buttons) ── */}
             <div className="summon-bar">
                 <span style={{
                     fontFamily: "'Space Mono', monospace",
@@ -278,14 +284,17 @@ export default function Home() {
                     letterSpacing: 2,
                     color: 'rgba(255, 215, 0, 0.4)',
                     marginRight: 8,
-                }}>DEMO</span>
-                <button className="summon-btn" onClick={() => handleAddStructure('pillar')}>
+                }}>FILTER VIEW</span>
+                <button className="summon-btn" onClick={() => useStore.getState().setFilter('all')}>
+                    [ALL]
+                </button>
+                <button className="summon-btn" onClick={() => useStore.getState().setFilter('pillar')}>
                     [▲] Pillar
                 </button>
-                <button className="summon-btn" onClick={() => handleAddStructure('obelisk')}>
+                <button className="summon-btn" onClick={() => useStore.getState().setFilter('obelisk')}>
                     [◆] Obelisk
                 </button>
-                <button className="summon-btn" onClick={() => handleAddStructure('node')}>
+                <button className="summon-btn" onClick={() => useStore.getState().setFilter('node')}>
                     [⬡] Node
                 </button>
             </div>
@@ -293,15 +302,15 @@ export default function Home() {
             {/* ── STATS BAR ── */}
             <div className="stats-bar">
                 <div className="stat-cell">
-                    <div className="stat-label">Current Era</div>
+                    <div className="stat-label">{t.hero.stats_era}</div>
                     <div className="stat-value purple">{eraName}</div>
                 </div>
                 <div className="stat-cell">
-                    <div className="stat-label">Treasury</div>
+                    <div className="stat-label">{t.hero.stats_treasury}</div>
                     <div className="stat-value gold">{treasuryDisplay} $MON</div>
                 </div>
                 <div className="stat-cell">
-                    <div className="stat-label">Validators</div>
+                    <div className="stat-label">{t.hero.stats_validators}</div>
                     <div className="stat-value cyan">{validatorList.length}/100</div>
                 </div>
             </div>

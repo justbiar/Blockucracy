@@ -8,7 +8,7 @@ set -e
 
 DESCRIPTION="${1}"
 WALLET_FILE="${WALLET_FILE:-.env.agent}"
-BASE_URL="${BLOCKUCRACY_URL:-http://localhost:3000}"
+BASE_URL="${BLOCKUCRACY_URL:-https://blockucracy.vercel.app}"
 RPC_URL="https://testnet-rpc.monad.xyz/"
 
 if [ -z "$DESCRIPTION" ]; then
@@ -49,17 +49,13 @@ echo "  Description: ${DESCRIPTION}"
 echo "  Offering:    5 MON"
 echo ""
 
-if ! command -v cast &> /dev/null; then
-    echo "✕ 'cast' not found. Install Foundry: curl -L https://foundry.paradigm.xyz | bash"
+if ! command -v node &> /dev/null; then
+    echo "✕ 'node' not found. Please install Node.js."
     exit 1
 fi
 
-TX_HASH=$(cast send "$CITADEL_ADDRESS" \
-    "submitProposal(string)" "$DESCRIPTION" \
-    --value 5ether \
-    --rpc-url "$RPC_URL" \
-    --private-key "$AGENT_PRIVATE_KEY" \
-    --json 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('transactionHash', ''))" 2>/dev/null)
+echo "  Executing via interact.js..."
+TX_HASH=$(node skills/blockucracy/scripts/interact.js propose "$DESCRIPTION" 2>/dev/null)
 
 if [ -n "$TX_HASH" ]; then
     echo "  ✓ Proposal submitted!"

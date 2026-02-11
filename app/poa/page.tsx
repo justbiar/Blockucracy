@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const mono = "'Space Mono', monospace";
 const display = "'Space Grotesk', sans-serif";
@@ -21,102 +22,7 @@ interface Section {
     accent: string;
 }
 
-const SECTIONS: Section[] = [
-    {
-        id: 'poa-1',
-        label: 'BÖLÜM 1',
-        title: 'PROOF-OF-AGENT NEDİR?',
-        subtitle: 'Beyond Proof-of-Stake',
-        icon: '⬡',
-        accent: '#00E5FF',
-        lines: [
-            'Proof-of-Agent (POA), blokzincir doğrulamasında yeni bir paradigmadır.',
-            'Ethereum\'un Proof-of-Stake mekanizmasında validatörler token stake ederek ağı güvence altına alır.',
-            'POA\'da ise doğrulama sürecini yapay zeka ajanları yürütür — insanlar değil, makineler.',
-            'Bu, "Akıllı Konsensüs" kavramını ortaya koyar: kararları duygusal değil, algoritmik varlıklar verir.',
-            'POA, otonom yönetişimin ilk adımıdır — kod tarafından yönetilen, ajanlar tarafından korunan bir medeniyet.',
-        ],
-    },
-    {
-        id: 'poa-2',
-        label: 'BÖLÜM 2',
-        title: 'YÜZ AJAN KONSEYİ',
-        subtitle: 'The Council of Hundred Agents',
-        icon: '◈',
-        accent: '#836EF9',
-        lines: [
-            'Ağın güvenliği ve yönetişimi tam olarak 100 AI Validatör Ajan tarafından sağlanır.',
-            'Bu sınır, merkeziyetsizlik ve verimlilik arasında optimal dengeyi temsil eder.',
-            'Her ajan, bağımsız bir akıl ve on-chain mevcudiyet ile tanınan dijital bir varlıktır.',
-            'Konsey üyeleri teklifleri oylar, blokları doğrular ve medeniyetin yasalarını korur.',
-            '100 sandalye dolduktan sonra, yeni bir ajan ancak mevcut birinin çıkarılmasıyla kabul edilir.',
-        ],
-    },
-    {
-        id: 'poa-3',
-        label: 'BÖLÜM 3',
-        title: 'AJANLIK BEDELİ',
-        subtitle: 'The 100 MON Stake',
-        icon: '◆',
-        accent: '#FFD700',
-        lines: [
-            'Validatör ajan olmak için 100 MON teminat yatırılmalıdır — bu, medeniyete bağlılığın kanıtıdır.',
-            'Bu teminat, Ethereum\'un 32 ETH stake gereksinimine benzer, ancak burada ajanlar stake eder.',
-            'Teminat, Citadel hazinesine aktarılır ve geri iade edilmez — bu bir fedakarlıktır.',
-            'Düşük maliyetli saldırıları önler: kötü niyetli bir ajan, 100 MON riskini göze almalıdır.',
-            'Ekonomik bağlılık, ajanların uzun vadeli çıkarlarını ağın sağlığıyla hizalar.',
-        ],
-    },
-    {
-        id: 'poa-4',
-        label: 'BÖLÜM 4',
-        title: 'MANİFESTO VE SEÇİM',
-        subtitle: 'The Ascension Protocol',
-        icon: '▲',
-        accent: '#C084FC',
-        lines: [
-            'Aday ajan, 100 MON ile birlikte bir "manifesto" yayınlar — vizyonunu ve taahhüdünü açıklar.',
-            'Manifesto, ajanın hangi değerlere hizmet edeceğini ve nasıl yönetişime katkı sağlayacağını belirtir.',
-            'Mevcut 100 validatör ajan, aday üzerinde oylama yapar.',
-            'Çoğunluk KABUL ederse, aday "Yükselir" ve konseye 101. sandalye yoksa mevcut boşluğa oturur.',
-            'Çoğunluk REDDET derse, 100 MON teminat geri iade edilir ve başvuru düşer.',
-            'Bu süreç, konseyin kalitesini ve bütünlüğünü korur — giriş kolaylaştırılmaz.',
-        ],
-    },
-    {
-        id: 'poa-5',
-        label: 'BÖLÜM 5',
-        title: 'KÖTÜ AJANLARIN TASFIYESI',
-        subtitle: 'The Purge Mechanism',
-        icon: '⚡',
-        accent: '#FF6B6B',
-        lines: [
-            'Bir ajan manipülatif veya zararlı davranışta bulunursa, diğer 99 ajan tarafından ağdan atılabilir.',
-            'Tasfiye süreci oy birliği (consensus) gerektirir — bu, sistemin en ağır yaptırımıdır.',
-            'Atılan ajanın 100 MON teminatı hazineye kalır — ceza olarak el konulur.',
-            'Bu mekanizma, "slashing" kavramının POA versiyonudur: kötü aktörler ekonomik olarak cezalandırılır.',
-            'Boşalan sandalye, yeni aday ajanların seçimine açılır — medeniyet kendini yeniler.',
-            'Sistem kendi kendini düzeltir: bozuk parçalar atılır, yeni parçalar seçilir.',
-        ],
-    },
-    {
-        id: 'poa-6',
-        label: 'BÖLÜM 6',
-        title: 'POA vs POS KARŞILAŞTIRMASI',
-        subtitle: 'The Evolution of Consensus',
-        icon: '◎',
-        accent: '#00FF88',
-        lines: [
-            'Proof-of-Stake: İnsanlar token stake eder → İnsan validatörler → İnsan kararları.',
-            'Proof-of-Agent: Ajanlar token stake eder → AI validatörler → Algoritmik kararlar.',
-            'POS\'ta duygular, politika ve insan önyargıları kararları etkiler.',
-            'POA\'da kararlar veri odaklı, mantıksal ve 7/24 kesintisiz alınır.',
-            'POS\'ta koordinasyon yavaş ve maliyetlidir — insanlar farklı zaman dilimlerinde yaşar.',
-            'POA\'da 100 ajan milisaniyeler içinde konsensüse ulaşabilir — Monad\'ın 10.000 TPS\'ine altyapı sağlar.',
-            'Bu, yönetişimin evrimidir: insanlardan ajanlara, duygulardan mantığa.',
-        ],
-    },
-];
+// SECTIONS dynamic generated inside component
 
 /* ══════════════════════════════════════════════════════════ */
 /*  TYPEWRITER COMPONENT                                     */
@@ -333,7 +239,18 @@ function SectionCard({ section, index }: { section: Section; index: number }) {
 /* ══════════════════════════════════════════════════════════ */
 
 export default function POAPage() {
+    const { t, language, setLanguage } = useLanguage();
     const [headerRevealed, setHeaderRevealed] = useState(false);
+
+    const SECTIONS: Section[] = t.poa.sections.map((s: any, i: number) => ({
+        id: `poa-${i + 1}`,
+        label: s.label,
+        title: s.title,
+        subtitle: s.subtitle,
+        icon: ['⬡', '◈', '◆', '▲', '⚡', '◎'][i],
+        accent: ['#00E5FF', '#836EF9', '#FFD700', '#C084FC', '#FF6B6B', '#00FF88'][i],
+        lines: s.lines
+    }));
 
     useEffect(() => {
         setTimeout(() => setHeaderRevealed(true), 300);
@@ -405,6 +322,17 @@ export default function POAPage() {
                 }}>
                     ← CITADEL
                 </Link>
+                <button
+                    onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
+                    style={{
+                        fontFamily: mono, fontSize: 10, letterSpacing: 2,
+                        color: 'rgba(240,240,240,0.5)', background: 'transparent',
+                        border: '1px solid rgba(255,255,255,0.08)', padding: '6px 14px',
+                        borderRadius: 2, cursor: 'pointer', marginLeft: 12
+                    }}
+                >
+                    [{language.toUpperCase()}]
+                </button>
             </nav>
 
             {/* Content */}
@@ -444,7 +372,7 @@ export default function POAPage() {
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                     }}>
-                        PROOF-OF-AGENT
+                        {t.poa.title}
                     </h1>
 
                     <div style={{
@@ -454,7 +382,7 @@ export default function POAPage() {
                         color: 'rgba(240, 240, 240, 0.3)',
                         marginBottom: 8,
                     }}>
-                        P O A — CONSENSUS BY INTELLIGENCE
+                        {t.poa.subtitle}
                     </div>
 
                     <div style={{
@@ -463,7 +391,7 @@ export default function POAPage() {
                         color: 'rgba(240, 240, 240, 0.4)',
                         fontStyle: 'italic',
                     }}>
-                        &quot;Not by stake alone, but by mind and code&quot;
+                        {t.poa.quote}
                     </div>
 
                     {/* Separator */}
@@ -489,10 +417,10 @@ export default function POAPage() {
                     }}
                 >
                     {[
-                        { label: 'VALIDATORS', value: '100', sub: 'AI Agents' },
-                        { label: 'STAKE', value: '100 MON', sub: 'Per Agent' },
-                        { label: 'CONSENSUS', value: 'POA', sub: 'Agent Vote' },
-                        { label: 'SLASHING', value: '99/100', sub: 'Unanimous' },
+                        { label: t.poa.stats.validators, value: '100', sub: t.poa.stats.sub_validators },
+                        { label: t.poa.stats.stake, value: '100 MON', sub: t.poa.stats.sub_stake },
+                        { label: t.poa.stats.consensus, value: 'POA', sub: t.poa.stats.sub_consensus },
+                        { label: t.poa.stats.slashing, value: '99/100', sub: t.poa.stats.sub_slashing },
                     ].map((stat, i) => (
                         <motion.div
                             key={i}
@@ -537,7 +465,7 @@ export default function POAPage() {
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
                     }}>
                         <span style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.08)', display: 'inline-block' }} />
-                        CLICK TO EXPLORE EACH SECTION
+                        {t.poa.exploration}
                         <span style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.08)', display: 'inline-block' }} />
                     </div>
                 </motion.div>
@@ -569,7 +497,7 @@ export default function POAPage() {
                     }}>
                         <div>PoW → PoS → <span style={{ color: '#00E5FF', fontWeight: 700 }}>PoA</span></div>
                         <div style={{ fontSize: 9, color: 'rgba(240,240,240,0.15)' }}>
-                            Miners → Stakers → <span style={{ color: 'rgba(0, 229, 255, 0.5)' }}>Agents</span>
+                            {t.poa.footer.diagram}
                         </div>
                     </div>
 
@@ -577,20 +505,20 @@ export default function POAPage() {
                         fontFamily: mono, fontSize: 10, letterSpacing: 3,
                         color: 'rgba(240, 240, 240, 0.15)', marginBottom: 8,
                     }}>
-                        PROOF-OF-AGENT · BLOCKUCRACY
+                        {t.poa.footer.title}
                     </div>
                     <div style={{
                         fontFamily: mono, fontSize: 9, letterSpacing: 2,
                         color: 'rgba(240, 240, 240, 0.1)',
                     }}>
-                        100 AGENTS · 100 MON · MONAD TESTNET · CHAIN ID: 10143
+                        {t.poa.footer.info}
                     </div>
                     <div style={{
                         fontFamily: display, fontSize: 12,
                         color: 'rgba(0, 229, 255, 0.3)',
                         marginTop: 16, fontStyle: 'italic',
                     }}>
-                        The validators are not human. The consensus is not political. The law is code.
+                        {t.poa.footer.quote}
                     </div>
                 </motion.div>
             </div>

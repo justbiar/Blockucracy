@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import Link from 'next/link';
 import { useIsValidator } from '../hooks/useContract';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export interface RegisteredAgent {
     agentId: string;
@@ -32,6 +33,7 @@ interface CouncilPanelProps {
 
 export default function CouncilPanel({ validators = [], agents = [], totalSlots = 100 }: CouncilPanelProps) {
     const { address } = useAccount();
+    const { t } = useLanguage();
     const { data: validatorData } = useIsValidator(address);
     // Fix: Cast unknown data to boolean for conditional rendering
     const isCurrentValidator = !!validatorData;
@@ -106,7 +108,7 @@ export default function CouncilPanel({ validators = [], agents = [], totalSlots 
                     letterSpacing: 3,
                     color: 'rgba(240, 240, 240, 0.5)',
                     textTransform: 'uppercase',
-                }}>Yüzler Meclisi</span>
+                }}>{t.council.title}</span>
                 <span style={{
                     fontFamily: mono,
                     fontSize: 10,
@@ -272,7 +274,7 @@ export default function CouncilPanel({ validators = [], agents = [], totalSlots 
                             letterSpacing: 2,
                             color: '#FFD700',
                             textTransform: 'uppercase',
-                        }}>Latest AIPs</span>
+                        }}>{t.council.active_proposals}</span>
                         <Link href="/aip" style={{
                             fontFamily: mono,
                             fontSize: 8,

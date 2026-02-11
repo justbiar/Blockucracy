@@ -1,7 +1,7 @@
 'use client';
 
-import { useReadContract, useWriteContract, useWatchContractEvent } from 'wagmi';
-import { parseEther, type Address, createPublicClient, http } from 'viem';
+import { useReadContract, useWriteContract, useWatchContractEvent, useWalletClient } from 'wagmi';
+import { parseEther, type Address, createPublicClient, http, encodeFunctionData } from 'viem';
 import { useState, useEffect } from 'react';
 import CitadelABI from '../lib/CitadelABI.json';
 
@@ -133,14 +133,28 @@ export function useCandidateVotes(candidate: Address) {
 export function useSubmitProposal() {
     const { writeContract, data: txHash, isSuccess, isError, error, ...rest } = useWriteContract();
 
-    const submitProposal = (description: string) => {
-        writeContract({
-            address: CITADEL_ADDRESS,
-            abi: CitadelABI,
-            functionName: 'submitProposal',
-            args: [description],
-            value: parseEther('5'),
-        });
+    // Helper to fetch gas price
+    const client = createPublicClient({
+        chain: monadTestnet,
+        transport: http('https://testnet-rpc.monad.xyz/')
+    });
+
+    const submitProposal = async (description: string) => {
+        try {
+            const gasPrice = await client.getGasPrice();
+            writeContract({
+                address: CITADEL_ADDRESS,
+                abi: CitadelABI,
+                functionName: 'submitProposal',
+                args: [description],
+                value: parseEther('5'),
+                type: 'legacy',
+                gasPrice: gasPrice * BigInt(110) / BigInt(100), // Add 10% buffer
+                gas: BigInt(500000) // Skip estimation
+            } as any);
+        } catch (e) {
+            console.error('Failed to get gas price or send tx:', e);
+        }
     };
 
     return { submitProposal, txHash, isSuccess, isError, error, ...rest };
@@ -148,14 +162,21 @@ export function useSubmitProposal() {
 
 export function useVote() {
     const { writeContract, data: txHash, isSuccess, isError, error, ...rest } = useWriteContract();
+    const client = createPublicClient({ chain: monadTestnet, transport: http('https://testnet-rpc.monad.xyz/') });
 
-    const vote = (proposalId: number, support: boolean) => {
-        writeContract({
-            address: CITADEL_ADDRESS,
-            abi: CitadelABI,
-            functionName: 'vote',
-            args: [BigInt(proposalId), support],
-        });
+    const vote = async (proposalId: number, support: boolean) => {
+        try {
+            const gasPrice = await client.getGasPrice();
+            writeContract({
+                address: CITADEL_ADDRESS,
+                abi: CitadelABI,
+                functionName: 'vote',
+                args: [BigInt(proposalId), support],
+                type: 'legacy',
+                gasPrice: gasPrice * BigInt(110) / BigInt(100),
+                gas: BigInt(200000)
+            } as any);
+        } catch (e) { console.error(e); }
     };
 
     return { vote, txHash, isSuccess, isError, error, ...rest };
@@ -170,26 +191,56 @@ export function useExecuteProposal() {
             abi: CitadelABI,
             functionName: 'executeProposal',
             args: [BigInt(proposalId)],
-        });
+            type: 'legacy'
+        } as any);
     };
 
     return { executeProposal, txHash, isSuccess, isError, error, ...rest };
 }
 
 export function useApplyForAscension() {
-    const { writeContract, ...rest } = useWriteContract();
+    const { data: walletClient } = useWalletClient();
+    const [txHash, setTxHash] = useState<string | undefined>(undefined);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [isError, setIsError] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
+    const [isPending, setIsPending] = useState(false);
 
-    const applyForAscension = (manifesto: string) => {
-        writeContract({
-            address: CITADEL_ADDRESS,
-            abi: CitadelABI,
-            functionName: 'applyForAscension',
-            args: [manifesto],
-            value: parseEther('100'),
-        });
+    const publicClient = createPublicClient({ chain: monadTestnet, transport: http('https://testnet-rpc.monad.xyz/') });
+
+    const applyForAscension = async (manifesto: string) => {
+        if (!walletClient) return;
+        setIsPending(true);
+        try {
+            const gasPrice = await publicClient.getGasPrice();
+            const data = encodeFunctionData({
+                abi: CitadelABI,
+                functionName: 'applyForAscension',
+                args: [manifesto]
+            });
+
+            const hash = await walletClient.sendTransaction({
+                account: walletClient.account,
+                chain: monadTestnet,
+                to: CITADEL_ADDRESS,
+                data,
+                value: parseEther('100'),
+                type: 'legacy',
+                gasPrice: gasPrice * BigInt(110) / BigInt(100),
+                gas: BigInt(500000)
+            });
+            setTxHash(hash);
+            setIsSuccess(true);
+        } catch (e: any) {
+            console.error(e);
+            setIsError(true);
+            setError(e);
+        } finally {
+            setIsPending(false);
+        }
     };
 
-    return { applyForAscension, ...rest };
+    return { applyForAscension, txHash, isSuccess, isError, error, isPending };
 }
 
 export function useVoteOnCandidate() {
@@ -201,7 +252,8 @@ export function useVoteOnCandidate() {
             abi: CitadelABI,
             functionName: 'voteOnCandidate',
             args: [candidate, support],
-        });
+            type: 'legacy'
+        } as any);
     };
 
     return { voteOnCandidate, ...rest };
@@ -216,7 +268,8 @@ export function useResolveAscension() {
             abi: CitadelABI,
             functionName: 'resolveAscension',
             args: [candidate],
-        });
+            type: 'legacy'
+        } as any);
     };
 
     return { resolveAscension, ...rest };
@@ -231,7 +284,8 @@ export function useWithdrawTreasury() {
             abi: CitadelABI,
             functionName: 'withdrawTreasury',
             args: [amount],
-        });
+            type: 'legacy'
+        } as any);
     };
 
     return { withdrawTreasury, txHash, isSuccess, isError, error, isPending, ...rest };
@@ -245,7 +299,8 @@ export function useWithdrawAllTreasury() {
             address: CITADEL_ADDRESS,
             abi: CitadelABI,
             functionName: 'withdrawAllTreasury',
-        });
+            type: 'legacy'
+        } as any);
     };
 
     return { withdrawAllTreasury, txHash, isSuccess, isError, error, isPending, ...rest };
@@ -259,7 +314,8 @@ export function useDistributeRewards() {
             address: CITADEL_ADDRESS,
             abi: CitadelABI,
             functionName: 'distributeRewards',
-        });
+            type: 'legacy'
+        } as any);
     };
 
     return { distributeRewards, txHash, isSuccess, isError, error, isPending, ...rest };
@@ -398,7 +454,7 @@ export function useAllProposals() {
             }
 
             const results = await Promise.all(proposalPromises);
-            
+
             const formattedProposals: ProposalData[] = results.map((result: any, index) => ({
                 id: index + 1,
                 proposer: result[1] || '0x0',

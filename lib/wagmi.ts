@@ -23,6 +23,13 @@ export const monadTestnet = defineChain({
         },
     },
     testnet: true,
+    serializers: {
+        transaction: (tx: any) => {
+            // Strip EIP-1559 fields to force legacy
+            const { maxFeePerGas, maxPriorityFeePerGas, ...rest } = tx;
+            return { ...rest, type: 'legacy' };
+        },
+    },
 });
 
 /* ── Wagmi Config ── */

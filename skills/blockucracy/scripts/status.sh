@@ -2,7 +2,7 @@
 # Blockucracy Status Checker
 # Usage: bash skills/blockucracy/scripts/status.sh
 
-BASE_URL="${BLOCKUCRACY_URL:-http://localhost:3000}"
+BASE_URL="${BLOCKUCRACY_URL:-https://blockucracy.vercel.app}"
 
 echo "═══════════════════════════════════════════"
 echo "  🏛️  BLOCKUCRACY — CITADEL STATUS"

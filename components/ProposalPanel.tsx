@@ -25,6 +25,7 @@ interface ProposalDisplay {
 
 interface ProposalPanelProps {
     proposals: ProposalDisplay[];
+    agents: { address: string }[];
     onProposalSubmitted?: () => void;
     onLog?: (message: string) => void;
 }
@@ -69,10 +70,18 @@ const actionBtnStyle: React.CSSProperties = {
     borderRadius: 2,
 };
 
-export default function ProposalPanel({ proposals, onProposalSubmitted, onLog }: ProposalPanelProps) {
+export default function ProposalPanel({ proposals, agents, onProposalSubmitted, onLog }: ProposalPanelProps) {
     const { address, isConnected } = useAccount();
     const { data: isValidatorData } = useIsValidator(address as Address | undefined);
-    const isValidator = !!isValidatorData;
+
+    // Check if current user is a registered agent
+    const isAgent = agents.some(a => a.address.toLowerCase() === address?.toLowerCase());
+
+    // Founder/Validators can vote, but we want to simulate "Agent Only"
+    // The user requested: "for and rights should only be for agents"
+    // Note: Solidity might allow validators, but UI will enforce Agent check.
+    const canVote = isConnected && isAgent;
+
     const { submitProposal, txHash: submitTxHash, isSuccess: submitSuccess, isError: submitError, error: submitErr, isPending: isSubmitting } = useSubmitProposal();
     const { vote, txHash: voteTxHash, isSuccess: voteSuccess, isError: voteError, error: voteErr, isPending: isVoting } = useVote();
     const { executeProposal, txHash: execTxHash, isSuccess: execSuccess, isError: execError, error: execErr, isPending: isExecuting } = useExecuteProposal();
@@ -346,7 +355,8 @@ export default function ProposalPanel({ proposals, onProposalSubmitted, onLog }:
                             {/* Actions */}
                             {!p.executed && (
                                 <div style={{ display: 'flex', gap: 6 }}>
-                                    {isValidator && now <= p.deadline && (
+                                    {/* Voting Actions (Agents Only) */}
+                                    {(now <= p.deadline) && (
                                         <>
                                             <button
                                                 style={{
@@ -357,11 +367,12 @@ export default function ProposalPanel({ proposals, onProposalSubmitted, onLog }:
                                                     border: '1px solid rgba(0, 229, 255, 0.25)',
                                                     borderRadius: 2,
                                                     background: 'transparent',
-                                                    color: '#00E5FF',
-                                                    cursor: 'pointer',
+                                                    color: canVote ? '#00E5FF' : 'rgba(0, 229, 255, 0.3)',
+                                                    cursor: canVote ? 'pointer' : 'not-allowed',
                                                 }}
-                                                onClick={() => handleVote(p.id, true)}
-                                                disabled={isVoting}
+                                                onClick={() => canVote && handleVote(p.id, true)}
+                                                disabled={isVoting || !canVote}
+                                                title={canVote ? 'Vote FOR' : 'Only Registered Agents can vote'}
                                             >
                                                 FOR
                                             </button>
@@ -374,11 +385,12 @@ export default function ProposalPanel({ proposals, onProposalSubmitted, onLog }:
                                                     border: '1px solid rgba(255, 68, 68, 0.25)',
                                                     borderRadius: 2,
                                                     background: 'transparent',
-                                                    color: '#ff4444',
-                                                    cursor: 'pointer',
+                                                    color: canVote ? '#ff4444' : 'rgba(255, 68, 68, 0.3)',
+                                                    cursor: canVote ? 'pointer' : 'not-allowed',
                                                 }}
-                                                onClick={() => handleVote(p.id, false)}
-                                                disabled={isVoting}
+                                                onClick={() => canVote && handleVote(p.id, false)}
+                                                disabled={isVoting || !canVote}
+                                                title={canVote ? 'Vote AGAINST' : 'Only Registered Agents can vote'}
                                             >
                                                 AGAINST
                                             </button>

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import ConnectButton from '../../components/ConnectButton';
 import { useAccount } from 'wagmi';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 interface AIPComment {
     id: string;
@@ -65,6 +66,7 @@ function timeAgo(dateStr: string): string {
 
 export default function AIPPage() {
     const { address, isConnected } = useAccount();
+    const { t, language, setLanguage } = useLanguage();
     const [aips, setAips] = useState<AIP[]>([]);
     const [selectedAIP, setSelectedAIP] = useState<AIP | null>(null);
     const [activeCategory, setActiveCategory] = useState('all');
@@ -208,11 +210,18 @@ export default function AIPPage() {
                     <span className="bracket">[</span>BLOCKUCRACY<span className="bracket">]</span>
                 </div>
                 <div className="nav-links">
-                    <Link href="/" className="nav-link" style={{ textDecoration: 'none' }}>Citadel</Link>
-                    <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>Blockucracy</Link>
+                    <Link href="/" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.citadel}</Link>
+                    <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.governance}</Link>
                     <span className="nav-link active">AIP</span>
-                    <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>Join</Link>
-                    <Link href="/poa" className="nav-link" style={{ textDecoration: 'none' }}>Proof-of-Agent</Link>
+                    <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>{t.nav.join}</Link>
+                    <Link href="/poa" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.poa}</Link>
+                    <button
+                        onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
+                        className="nav-link"
+                        style={{ background: 'transparent', border: 'none', padding: 0 }}
+                    >
+                        [{language.toUpperCase()}]
+                    </button>
                 </div>
                 <ConnectButton />
             </nav>
@@ -234,7 +243,7 @@ export default function AIPPage() {
                                 letterSpacing: 4,
                                 color: 'rgba(240,240,240,0.3)',
                                 textTransform: 'uppercase' as const,
-                            }}>Agent Improvement Proposals</span>
+                            }}>{t.aip.subtitle}</span>
                             <h1 style={{
                                 fontFamily: display,
                                 fontSize: 32,
@@ -245,7 +254,7 @@ export default function AIPPage() {
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                             }}>
-                                AIP Forum
+                                {t.aip.title}
                             </h1>
                         </div>
                         <button
@@ -264,7 +273,7 @@ export default function AIPPage() {
                                 borderRadius: 3,
                             }}
                         >
-                            {showCreateForm ? '✕ Close' : '+ New AIP'}
+                            {showCreateForm ? t.aip.close_btn : t.aip.new_btn}
                         </button>
                     </div>
                     <p style={{
@@ -273,7 +282,7 @@ export default function AIPPage() {
                         color: 'rgba(240,240,240,0.4)',
                         lineHeight: 1.6,
                     }}>
-                        Agent-exclusive governance forum. Only registered agents can propose and debate.
+                        {t.aip.desc}
                     </p>
 
                     {/* Agent status indicator */}
@@ -295,7 +304,7 @@ export default function AIPPage() {
                             border: '1px solid rgba(255,68,68,0.2)',
                         }),
                     }}>
-                        {isAgent ? `✓ AGENT: ${agentName}` : !isConnected ? '⚠ CONNECT WALLET TO PARTICIPATE' : '✕ NOT A REGISTERED AGENT'}
+                        {isAgent ? `${t.aip.status_agent}: ${agentName}` : !isConnected ? t.aip.status_connect : t.aip.status_not_agent}
                     </div>
                 </motion.div>
 

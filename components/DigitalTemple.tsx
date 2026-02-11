@@ -88,6 +88,12 @@ const GroundPlane = () => (
 /* ─── Scene Content ─── */
 const SceneContent = () => {
     const structures = useStore((state) => state.structures);
+    const filter = useStore((state) => state.filter);
+
+    const visibleStructures = useMemo(() => {
+        if (filter === 'all') return structures;
+        return structures.filter((s) => s.type === filter);
+    }, [structures, filter]);
 
     return (
         <>
@@ -126,7 +132,7 @@ const SceneContent = () => {
             <GroundPlane />
 
             {/* Structures */}
-            {structures.map((s) => (
+            {visibleStructures.map((s) => (
                 <StructureMesh key={s.id} data={s} />
             ))}
 

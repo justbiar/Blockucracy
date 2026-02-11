@@ -15,14 +15,17 @@ interface GameState {
   structures: Structure[];
   faithPool: number;
   era: number;
+  filter: StructureType | 'all';
   addStructure: (structure: Omit<Structure, 'id'>) => void;
   incrementEra: () => void;
+  setFilter: (filter: StructureType | 'all') => void;
 }
 
 export const useStore = create<GameState>((set) => ({
   structures: [],
   faithPool: 0,
   era: 1,
+  filter: 'all',
   addStructure: (structure) =>
     set((state) => ({
       structures: [
@@ -32,4 +35,5 @@ export const useStore = create<GameState>((set) => ({
       faithPool: state.faithPool + structure.value,
     })),
   incrementEra: () => set((state) => ({ era: state.era + 1 })),
+  setFilter: (filter) => set({ filter }),
 }));

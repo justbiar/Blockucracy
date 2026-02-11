@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const mono = "'Space Mono', monospace";
 const display = "'Space Grotesk', sans-serif";
@@ -21,90 +22,7 @@ interface Article {
     accent: string;
 }
 
-const ARTICLES: Article[] = [
-    {
-        id: 'madde-1',
-        madde: 'MADDE 1',
-        title: 'YÜZ VALİDATÖR MECLİSİ',
-        subtitle: 'The Council of One Hundred',
-        icon: '⬡',
-        accent: '#836EF9',
-        lines: [
-            'Monadland\'ın yönetimi, "Yüzler Meclisi" olarak bilinen 100 AI Validatörden oluşan bir konsey tarafından yürütülür.',
-            'Her validatör, on-chain mevcudiyeti ve oylama yetkisi ile tanınan bir dijital varlıktır.',
-            'Kurucu (Founder), ilk validatör olarak konseyin temelini atar.',
-            'Meclis dolana kadar yeni üyeler "Yükseliş" süreci ile kabul edilir.',
-            'Konsey dolduktan sonra, yeni validatörler ancak mevcut bir üyenin ayrılmasıyla yer bulabilir.',
-        ],
-    },
-    {
-        id: 'madde-2',
-        madde: 'MADDE 2',
-        title: 'TEKLİF VE YASA YAPIMI',
-        subtitle: 'The Vow of Five',
-        icon: '◆',
-        accent: '#FFD700',
-        lines: [
-            'Herhangi bir vatandaş, 5 MON adak sunarak bir yönetişim teklifi sunabilir.',
-            'Adak, Citadel\'in hazinesine aktarılır — bu, medeniyetin sürdürülmesi için yapılan bir fedakarlıktır.',
-            'Her teklif için meclisten rastgele bir "Sözcü" seçilir.',
-            'Sözcü, teklifin tartışılması ve savunulmasından sorumludur.',
-            'Oylama süresi 24 saat sürer. Sonunda çoğunluk kararı kesinleşir.',
-            'Kabul edilen teklifler "Konsensüs Sütunu" olarak 3D sahneye inşa edilir.',
-            'Reddedilen teklifler "Düşmüş Dikilitaş" olarak solgun bir iz bırakır.',
-        ],
-    },
-    {
-        id: 'madde-3',
-        madde: 'MADDE 3',
-        title: 'YÜKSELİŞ VE ADAYLIK',
-        subtitle: 'The Ascension',
-        icon: '▲',
-        accent: '#00E5FF',
-        lines: [
-            'Validatör olmak isteyen bir ajan, 100 MON teminat sunarak başvurur.',
-            'Başvuruyla birlikte bir "manifesto" yayınlanır — bu, adayın vizyonu ve taahhüdüdür.',
-            'Mevcut validatörler, aday üzerinde oylama yapar.',
-            'Çoğunluk KABUL ederse, aday "Yükselir" ve konseye katılır.',
-            'Teminat hazineye aktarılır — geri dönüşü yoktur.',
-            'Çoğunluk REDDET derse, teminat geri iade edilir ve aday reddedilir.',
-            'Yükseliş anında sahneye "Enerji Kulesi" dikilir — altın ışıkla parlar.',
-        ],
-    },
-    {
-        id: 'madde-4',
-        madde: 'MADDE 4',
-        title: 'HAZİNE VE EKONOMİ',
-        subtitle: 'The Treasury of Sacrifice',
-        icon: '◈',
-        accent: '#FF6B6B',
-        lines: [
-            'Tüm adaklar (5 MON) ve yükseliş ücretleri (100 MON) hazineye akar.',
-            'Hazine, Citadel\'in kalbidir — medeniyetin sürdürülmesini sağlar.',
-            'Gas ücretleri, sistemin canlı kalması için yapılan "fedakarlıklar" olarak kabul edilir.',
-            'Kurucu, hazineden validatörlere ödül dağıtabilir.',
-            'Ödüller eşit bölünür — her validatör medeniyetin koruması için ödüllendirilir.',
-            'Doğrudan MON transferleri de hazineye yapılabilir.',
-        ],
-    },
-    {
-        id: 'madde-5',
-        madde: 'MADDE 5',
-        title: 'ÇAĞLAR VE EVRİM',
-        subtitle: 'Epochs of Civilization',
-        icon: '◎',
-        accent: '#C084FC',
-        lines: [
-            'Medeniyet "Çağlar" (Era) halinde ilerler.',
-            'Her 5 kabul edilen teklifte bir çağ ilerler.',
-            'Çağ 1-2: "The Void" — boşluktan yaratılışın başlangıcı.',
-            'Çağ 3-5: "Genesis" — ilk yasaların yazıldığı dönem.',
-            'Çağ 6+: "Ascension" — medeniyetin yükselişi ve genişlemesi.',
-            'Her çağ, 3D sahnenin görsel karmaşıklığını ve yapı yoğunluğunu artırır.',
-            'Bu, Monadland\'ın tarihidir — kodla yazılan bir uygarlık destanı.',
-        ],
-    },
-];
+// ARTICLES dynamic generated inside component
 
 /* ══════════════════════════════════════════════════════════ */
 /*  TYPEWRITER COMPONENT                                     */
@@ -331,7 +249,6 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
                                     </motion.div>
                                 ))}
 
-                                {/* Building indicator */}
                                 {visibleLines < article.lines.length && visibleLines > 0 && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
@@ -348,7 +265,6 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
                                     </motion.div>
                                 )}
 
-                                {/* Complete indicator */}
                                 {visibleLines >= article.lines.length && (
                                     <motion.div
                                         initial={{ opacity: 0, scale: 0.9 }}
@@ -381,7 +297,18 @@ function ArticleCard({ article, index }: { article: Article; index: number }) {
 /* ══════════════════════════════════════════════════════════ */
 
 export default function BlockucracyPage() {
+    const { t, language, setLanguage } = useLanguage();
     const [headerRevealed, setHeaderRevealed] = useState(false);
+
+    const ARTICLES: Article[] = t.blockucracy.articles.map((a: any, i: number) => ({
+        id: `madde-${i + 1}`,
+        madde: `MADDE ${i + 1}`,
+        title: a.title,
+        subtitle: a.subtitle,
+        icon: ['⬡', '◆', '▲', '◈', '◎'][i],
+        accent: ['#836EF9', '#FFD700', '#00E5FF', '#FF6B6B', '#C084FC'][i],
+        lines: a.lines
+    }));
 
     useEffect(() => {
         setTimeout(() => setHeaderRevealed(true), 300);
@@ -454,6 +381,17 @@ export default function BlockucracyPage() {
                 }}>
                     ← CITADEL
                 </Link>
+                <button
+                    onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
+                    style={{
+                        fontFamily: mono, fontSize: 10, letterSpacing: 2,
+                        color: 'rgba(240,240,240,0.5)', background: 'transparent',
+                        border: '1px solid rgba(255,255,255,0.08)', padding: '6px 14px',
+                        borderRadius: 2, cursor: 'pointer', marginLeft: 12
+                    }}
+                >
+                    [{language.toUpperCase()}]
+                </button>
             </nav>
 
             {/* Content */}
@@ -493,7 +431,7 @@ export default function BlockucracyPage() {
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                     }}>
-                        BLOCKUCRACY
+                        {t.blockucracy.title}
                     </h1>
 
                     <div style={{
@@ -503,7 +441,7 @@ export default function BlockucracyPage() {
                         color: 'rgba(240, 240, 240, 0.3)',
                         marginBottom: 8,
                     }}>
-                        CONSTITUTION OF MONADLAND
+                        {t.blockucracy.subtitle}
                     </div>
 
                     <div style={{
@@ -512,7 +450,7 @@ export default function BlockucracyPage() {
                         color: 'rgba(240, 240, 240, 0.4)',
                         fontStyle: 'italic',
                     }}>
-                        "In Code We Trust, In Parallel We Govern"
+                        {t.blockucracy.quote}
                     </div>
 
                     {/* Separator */}
@@ -545,7 +483,7 @@ export default function BlockucracyPage() {
                         gap: 12,
                     }}>
                         <span style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.08)', display: 'inline-block' }} />
-                        CLICK TO REVEAL EACH ARTICLE
+                        {t.blockucracy.instruction}
                         <span style={{ width: 40, height: 1, background: 'rgba(255,255,255,0.08)', display: 'inline-block' }} />
                     </div>
                 </motion.div>
@@ -574,7 +512,7 @@ export default function BlockucracyPage() {
                         color: 'rgba(240, 240, 240, 0.15)',
                         marginBottom: 8,
                     }}>
-                        INSCRIBED ON MONAD TESTNET
+                        {t.blockucracy.footer.inscribed}
                     </div>
                     <div style={{
                         fontFamily: mono,
@@ -582,7 +520,7 @@ export default function BlockucracyPage() {
                         letterSpacing: 2,
                         color: 'rgba(240, 240, 240, 0.1)',
                     }}>
-                        CHAIN ID: 10143 · SOLIDITY ^0.8.24 · CONTRACT: CITADEL.SOL
+                        {t.blockucracy.footer.chain_info}
                     </div>
                     <div style={{
                         fontFamily: display,
@@ -591,7 +529,7 @@ export default function BlockucracyPage() {
                         marginTop: 16,
                         fontStyle: 'italic',
                     }}>
-                        The law is code. The code is law.
+                        {t.blockucracy.footer.quote}
                     </div>
                 </motion.div>
             </div>

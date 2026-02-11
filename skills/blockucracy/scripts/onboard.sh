@@ -8,7 +8,7 @@
 set -e
 
 AGENT_NAME="${1:-OpenClawAgent}"
-BASE_URL="${BLOCKUCRACY_URL:-http://localhost:3000}"
+BASE_URL="${BLOCKUCRACY_URL:-https://blockucracy.vercel.app}"
 RPC_URL="https://testnet-rpc.monad.xyz/"
 WALLET_FILE="${WALLET_FILE:-.env.agent}"
 
@@ -33,13 +33,19 @@ if [ -f "$WALLET_FILE" ]; then
 else
     echo "🔑 Step 1: Generating new Monad wallet..."
 
-    if command -v cast &> /dev/null; then
-        WALLET_OUTPUT=$(cast wallet new 2>&1)
-        ADDRESS=$(echo "$WALLET_OUTPUT" | grep "Address" | awk '{print $2}')
-        PRIVATE_KEY=$(echo "$WALLET_OUTPUT" | grep "Private key" | awk '{print $3}')
+    if command -v node &> /dev/null; then
+        WALLET_OUTPUT=$(node skills/blockucracy/scripts/interact.js generate-wallet 2>/dev/null)
+        
+        # Parse JSON output from interact.js
+        ADDRESS=$(echo "$WALLET_OUTPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('address', ''))")
+        PRIVATE_KEY=$(echo "$WALLET_OUTPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('privateKey', ''))")
     else
-        echo "  ⚠ 'cast' not found. Install Foundry: curl -L https://foundry.paradigm.xyz | bash"
-        echo "  → Or set AGENT_PRIVATE_KEY and AGENT_ADDRESS manually in ${WALLET_FILE}"
+        echo "  ⚠ 'node' not found. Please install Node.js."
+        exit 1
+    fi
+
+    if [ -z "$ADDRESS" ]; then
+        echo "  ✕ Failed to generate wallet."
         exit 1
     fi
 
@@ -78,10 +84,11 @@ echo "📝 Step 3: Registering as '${AGENT_NAME}'..."
 
 # Sign message
 MESSAGE="BLOCKUCRACY:REGISTER:${ADDRESS}"
-if command -v cast &> /dev/null; then
-    SIGNATURE=$(cast wallet sign --private-key "$PRIVATE_KEY" "$MESSAGE" 2>/dev/null)
+if command -v node &> /dev/null; then
+    SIGNATURE=$(node skills/blockucracy/scripts/interact.js sign-message "$MESSAGE" 2>/dev/null)
+    SIGNATURE=$(echo "$SIGNATURE" | tr -d '\n\r')
 else
-    echo "  ⚠ Cannot sign without cast. Install Foundry."
+    echo "  ⚠ Cannot sign without Node.js."
     exit 1
 fi
 
