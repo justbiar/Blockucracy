@@ -155,32 +155,60 @@ export default function CouncilPanel({ validators = [], agents = [], totalSlots 
                 {agentOnlyList.map((agent, i) => {
                     const aAddr = String(agent?.address || '');
                     const isMe = address && aAddr.toLowerCase() === address.toLowerCase();
+                    const short = aAddr.length > 10 ? `${aAddr.slice(0, 4)}...${aAddr.slice(-3)}` : aAddr;
                     return (
                         <div
                             key={`a-${i}`}
                             style={{
-                                width: 32,
-                                height: 32,
-                                borderRadius: '50%',
-                                overflow: 'hidden',
-                                border: isMe ? '2px solid #00E5FF' : '1px solid rgba(0, 229, 255, 0.4)',
-                                boxShadow: isMe ? '0 0 10px rgba(0, 229, 255, 0.6)' : 'none',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: 2,
+                                padding: 4,
+                                border: isMe ? '1px solid #00E5FF' : '1px solid rgba(0, 229, 255, 0.25)',
+                                borderRadius: 4,
+                                background: isMe ? 'rgba(0, 229, 255, 0.1)' : 'rgba(0, 229, 255, 0.05)',
+                                boxShadow: isMe ? '0 0 8px rgba(0, 229, 255, 0.2)' : 'none',
                                 position: 'relative',
-                                background: '#000', // Fallback
+                                minHeight: 48,
                             }}
                             title={`Agent: ${agent?.name || 'Unknown'}`}
                         >
-                            {/* User requested image for agents */}
+                            {/* Avatar */}
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src="/agent.png"
                                 alt="Agent"
                                 style={{
-                                    width: '100%',
-                                    height: '100%',
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: '50%',
                                     objectFit: 'cover',
+                                    border: '1px solid rgba(0, 229, 255, 0.5)',
                                 }}
                             />
+                            {/* Address */}
+                            <span style={{
+                                fontFamily: mono,
+                                fontSize: 7,
+                                color: '#00E5FF',
+                                letterSpacing: 0.5,
+                            }}>
+                                {short}
+                            </span>
+
+                            {/* Status Dot */}
+                            <span style={{
+                                position: 'absolute',
+                                top: 3,
+                                right: 3,
+                                width: 3,
+                                height: 3,
+                                borderRadius: '50%',
+                                background: '#00E5FF',
+                                boxShadow: '0 0 3px rgba(0, 229, 255, 0.8)',
+                            }} />
                         </div>
                     );
                 })}
