@@ -18,7 +18,7 @@ export default function ConnectButton() {
         return (
             <button className="wallet-btn" disabled>
                 <span className="bracket">[</span>
-                CONNECT WALLET
+                MONAD
                 <span className="bracket">]</span>
             </button>
         );
@@ -64,7 +64,7 @@ export default function ConnectButton() {
             disabled={isPending}
         >
             <span className="bracket">[</span>
-            {isPending ? 'CONNECTING...' : 'CONNECT WALLET'}
+            {isPending ? 'CONNECTING...' : 'MONAD'}
             <span className="bracket">]</span>
         </button>
     );

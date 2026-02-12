@@ -177,7 +177,7 @@ export default function ProposalPanel({ proposals, agents, onProposalSubmitted, 
         <div style={panelStyle}>
             <div style={headerStyle}>
                 <span style={titleStyle}>The Council</span>
-                {mounted && isConnected && (
+                {mounted && isConnected && isAgent && (
                     <button
                         style={actionBtnStyle}
                         onClick={() => setShowForm(!showForm)}

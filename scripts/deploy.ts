@@ -14,14 +14,28 @@ async function main() {
 
     // Deploy the Citadel
     const Citadel = await ethers.getContractFactory("Citadel");
-    const citadel = await Citadel.deploy();
+    const citadel = await Citadel.deploy(deployer.address);
     await citadel.waitForDeployment();
 
-    const address = await citadel.getAddress();
-    console.log(`✓ Citadel deployed at: ${address}`);
+    const citadelAddress = await citadel.getAddress();
+    console.log(`✓ Citadel deployed at: ${citadelAddress}`);
     console.log(`✓ Founder registered as first Validator`);
-    console.log(`\n> Add this address to your .env.local:`);
-    console.log(`  NEXT_PUBLIC_CITADEL_ADDRESS=${address}`);
+
+    // Deploy Moltiverse (aDAO Factory)
+    const Moltiverse = await ethers.getContractFactory("Moltiverse");
+    const moltiverse = await Moltiverse.deploy();
+    await moltiverse.waitForDeployment();
+
+    const moltiverseAddress = await moltiverse.getAddress();
+    console.log(`✓ Moltiverse deployed at: ${moltiverseAddress}`);
+
+    // Link Moltiverse to Citadel
+    await citadel.setMoltiverse(moltiverseAddress);
+    console.log(`✓ Moltiverse linked to Citadel`);
+
+    console.log(`\n> Add these addresses to your .env.local:`);
+    console.log(`  NEXT_PUBLIC_CITADEL_ADDRESS=${citadelAddress}`);
+    console.log(`  NEXT_PUBLIC_MOLTIVERSE_ADDRESS=${moltiverseAddress}`);
 }
 
 main()

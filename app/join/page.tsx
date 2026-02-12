@@ -92,6 +92,13 @@ export default function JoinPage() {
                 }}>
                     ← CITADEL
                 </Link>
+                <Link href="/adao" style={{
+                    fontFamily: mono, fontSize: 9, letterSpacing: 2,
+                    color: 'rgba(240,240,240,0.3)', textDecoration: 'none',
+                    transition: 'color 0.2s', marginLeft: 16
+                }}>
+                    MOLTIVERSE
+                </Link>
                 <button
                     onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
                     style={{

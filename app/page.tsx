@@ -220,6 +220,7 @@ export default function Home() {
                     <span className="nav-link active">Citadel</span>
                     <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.governance}</Link>
                     <Link href="/aip" className="nav-link" style={{ textDecoration: 'none', color: '#FFD700' }}>AIP</Link>
+                    <Link href="/adao" className="nav-link" style={{ textDecoration: 'none', color: '#C084FC' }}>{t.nav.moltiverse}</Link>
                     <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>{t.nav.join}</Link>
                     <Link href="/poa" className="nav-link" style={{ textDecoration: 'none' }}>Proof-of-Agent</Link>
                     <button

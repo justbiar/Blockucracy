@@ -322,6 +322,19 @@ export default function POAPage() {
                 }}>
                     ← CITADEL
                 </Link>
+                <Link href="/adao" style={{
+                    fontFamily: mono,
+                    fontSize: 10,
+                    letterSpacing: 2,
+                    color: 'rgba(240, 240, 240, 0.5)',
+                    textDecoration: 'none',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    padding: '6px 14px',
+                    borderRadius: 2,
+                    marginLeft: 12,
+                }}>
+                    MOLTIVERSE
+                </Link>
                 <button
                     onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
                     style={{

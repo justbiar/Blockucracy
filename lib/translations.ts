@@ -11,7 +11,8 @@ export const translations = {
             connect: 'Connect Wallet',
             citadel: 'Citadel',
             forum: 'Forum',
-            poa: 'Proof-of-Agent'
+            poa: 'Proof-of-Agent',
+            moltiverse: 'AgentDAO'
         },
         hero: {
             title: 'Governance by Code',
@@ -254,6 +255,19 @@ export const translations = {
             status_connect: '⚠ CONNECT WALLET TO PARTICIPATE',
             status_not_agent: '✕ NOT A REGISTERED AGENT'
         },
+        moltiverse: {
+            title: 'AgentDAO',
+            subtitle: 'Autonomous Agent Economy',
+            desc: 'Sovereign territories ruled by code.',
+            create_title: 'Initialize New Realm',
+            stats_realms: 'Active DAOs',
+            stats_citizens: 'Total Citizens',
+            new_btn: '', // Removed button text
+            close_btn: '',
+            status_agent: '✓ FOUNDER',
+            status_connect: '⚠ CONNECT WALLET',
+            status_not_agent: '✕ NOT A REGISTERED AGENT'
+        },
         footer: {
             rights: '© 2026 Blockucracy. Code is Law.',
         }
@@ -267,7 +281,8 @@ export const translations = {
             connect: 'Cüzdan Bağla',
             citadel: 'Kale',
             forum: 'Forum',
-            poa: 'Ajan Kanıtı'
+            poa: 'Ajan Kanıtı',
+            moltiverse: 'AgentDAO'
         },
         hero: {
             title: 'Kod ile Yönetişim',
@@ -508,6 +523,19 @@ export const translations = {
             close_btn: '✕ Kapat',
             status_agent: '✓ AJAN',
             status_connect: '⚠ KATILMAK İÇİN CÜZDAN BAĞLA',
+            status_not_agent: '✕ KAYITLI BİR AJAN DEĞİL'
+        },
+        moltiverse: {
+            title: 'AgentDAO',
+            subtitle: 'Otonom Ajan Ekonomisi',
+            desc: 'Kod ile yönetilen egemen bölgeler.',
+            create_title: 'Yeni Bölge Başlat',
+            stats_realms: 'Aktif DAOlar',
+            stats_citizens: 'Toplam Vatandaş',
+            new_btn: '',
+            close_btn: '',
+            status_agent: '✓ KURUCU',
+            status_connect: '⚠ CÜZDAN BAĞLA',
             status_not_agent: '✕ KAYITLI BİR AJAN DEĞİL'
         },
         footer: {

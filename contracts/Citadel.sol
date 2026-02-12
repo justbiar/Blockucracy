@@ -10,17 +10,20 @@ pragma solidity ^0.8.24;
  * Governance contract for Monadland — an Agent-First civilization
  * governed by the Agent Council of 100 AI Validators.
  */
+import "./Moltiverse.sol";
 contract Citadel {
     // ─── CONSTANTS ───
     uint256 public constant MAX_VALIDATORS = 100;
-    uint256 public constant PROPOSAL_OFFERING = 5 ether;    // 5 MON
-    uint256 public constant ASCENSION_FEE = 100 ether;      // 100 MON
+    uint256 public constant PROPOSAL_OFFERING = 1 ether;    // 1 MON
+    uint256 public constant ASCENSION_FEE = 10 ether;       // 10 MON
     uint256 public constant VOTING_PERIOD = 1 days;
 
     // ─── STATE ───
     address public founder;
     uint256 public proposalCount;
     uint256 public era;
+
+    Moltiverse public moltiverse;
 
     // Council of Validators
     address[] public validators;
@@ -110,6 +113,8 @@ contract Citadel {
 
     event TreasuryDeposit(uint256 amount, string reason);
 
+    event TreasuryWithdrawal(address indexed to, uint256 amount);
+
     // ─── MODIFIERS ───
     modifier onlyValidator() {
         require(isValidator[msg.sender], "Not a validator");
@@ -122,16 +127,20 @@ contract Citadel {
     }
 
     // ─── CONSTRUCTOR ───
-    constructor() {
-        founder = msg.sender;
+    constructor(address _founder) {
+        founder = _founder;
         era = 1;
 
         // Founder is the first validator
-        validators.push(msg.sender);
-        isValidator[msg.sender] = true;
+        validators.push(_founder);
+        isValidator[_founder] = true;
         
         // Initialize rotation clock
         lastFounderRotation = block.number;
+    }
+
+    function setMoltiverse(address _moltiverse) external onlyFounder {
+        moltiverse = Moltiverse(_moltiverse);
     }
 
     // ══════════════════════════════════════════════════════════
@@ -139,12 +148,13 @@ contract Citadel {
     // ══════════════════════════════════════════════════════════
 
     /**
-     * @notice Submit a governance proposal with a 5 MON offering
+     * @notice Submit a governance proposal with a 1 MON offering
      * @param _description The proposal description
      */
     function submitProposal(string calldata _description) external payable {
-        require(msg.value == PROPOSAL_OFFERING, "Offering must be exactly 5 MON");
+        require(msg.value == PROPOSAL_OFFERING, "Offering must be exactly 1 MON");
         require(validators.length > 0, "No validators in council");
+        require(moltiverse.hasRealm(msg.sender), "Only Agents (Realm owners) can propose");
 
         proposalCount++;
         Proposal storage p = proposals[proposalCount];
@@ -225,11 +235,11 @@ contract Citadel {
     // ══════════════════════════════════════════════════════════
 
     /**
-     * @notice Apply for a validator seat with 100 MON + manifesto
+     * @notice Apply for a validator seat with 10 MON + manifesto
      * @param _manifesto The candidate's manifesto
      */
     function applyForAscension(string calldata _manifesto) external payable {
-        require(msg.value == ASCENSION_FEE, "Ascension fee must be exactly 100 MON");
+        require(msg.value == ASCENSION_FEE, "Ascension fee must be exactly 10 MON");
         require(!isValidator[msg.sender], "Already a validator");
         require(validators.length < MAX_VALIDATORS, "Council is full");
         require(candidates[msg.sender].applicant == address(0), "Already applied");
@@ -415,6 +425,9 @@ contract Citadel {
         
         treasury -= _amount;
         
+        // Ensure founder is set correctly
+        require(founder != address(0), "Founder address not set");
+
         (bool sent, ) = payable(founder).call{value: _amount}("");
         require(sent, "Withdrawal failed");
         
@@ -430,13 +443,14 @@ contract Citadel {
         uint256 amount = treasury;
         treasury = 0;
         
+        // Ensure founder is set correctly
+        require(founder != address(0), "Founder address not set");
+        
         (bool sent, ) = payable(founder).call{value: amount}("");
         require(sent, "Withdrawal failed");
         
         emit TreasuryWithdrawal(founder, amount);
     }
-
-    event TreasuryWithdrawal(address indexed to, uint256 amount);
 
     // Allow contract to receive MON
     receive() external payable {
