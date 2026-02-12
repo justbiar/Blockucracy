@@ -155,36 +155,32 @@ export default function CouncilPanel({ validators = [], agents = [], totalSlots 
                 {agentOnlyList.map((agent, i) => {
                     const aAddr = String(agent?.address || '');
                     const isMe = address && aAddr.toLowerCase() === address.toLowerCase();
-                    const short = aAddr.length > 10 ? `${aAddr.slice(0, 4)}...${aAddr.slice(-3)}` : aAddr;
                     return (
                         <div
                             key={`a-${i}`}
                             style={{
+                                width: 32,
                                 height: 32,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                border: isMe ? '1px solid #00E5FF' : '1px solid rgba(0, 229, 255, 0.25)',
-                                borderRadius: 3,
-                                background: isMe ? 'rgba(0, 229, 255, 0.2)' : 'rgba(0, 229, 255, 0.08)',
-                                boxShadow: isMe ? '0 0 8px rgba(0, 229, 255, 0.3)' : 'none',
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                border: isMe ? '2px solid #00E5FF' : '1px solid rgba(0, 229, 255, 0.4)',
+                                boxShadow: isMe ? '0 0 10px rgba(0, 229, 255, 0.6)' : 'none',
                                 position: 'relative',
+                                background: '#000', // Fallback
                             }}
                             title={`Agent: ${agent?.name || 'Unknown'}`}
                         >
-                            <span style={{ fontFamily: mono, fontSize: 8, color: '#00E5FF' }}>
-                                {short}
-                            </span>
-                            <span style={{
-                                position: 'absolute',
-                                top: 2,
-                                right: 2,
-                                width: 4,
-                                height: 4,
-                                borderRadius: '50%',
-                                background: '#00E5FF',
-                                boxShadow: '0 0 4px rgba(0, 229, 255, 0.6)',
-                            }} />
+                            {/* User requested image for agents */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src="/agent.png"
+                                alt="Agent"
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                }}
+                            />
                         </div>
                     );
                 })}
