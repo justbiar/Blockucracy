@@ -194,7 +194,7 @@ export default function Home() {
         });
     });
 
-    const eraName = currentEra <= 2 ? 'The Void' : currentEra <= 5 ? 'Genesis' : 'Ascension';
+    const eraName = currentEra <= 1 ? 'The Void' : currentEra <= 5 ? 'Genesis' : 'Ascension';
 
     return (
         <div

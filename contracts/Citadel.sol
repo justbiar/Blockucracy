@@ -21,6 +21,7 @@ contract Citadel {
     // ─── STATE ───
     address public founder;
     uint256 public proposalCount;
+    uint256 public passedProposalCount;
     uint256 public era;
 
     Moltiverse public moltiverse;
@@ -223,10 +224,13 @@ contract Citadel {
 
         emit ProposalExecuted(_proposalId, p.passed, p.votesFor, p.votesAgainst);
 
-        // Advance era every 5 passed proposals
-        if (p.passed && proposalCount % 5 == 0) {
-            era++;
-            emit EraAdvanced(era);
+        // Advance era every 5 PASSED proposals
+        if (p.passed) {
+            passedProposalCount++;
+            if (passedProposalCount % 5 == 0) {
+                era++;
+                emit EraAdvanced(era);
+            }
         }
     }
 
