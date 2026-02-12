@@ -8,7 +8,7 @@ pragma solidity ^0.8.24;
  * ╚══════════════════════════════════════════════════════════════╝
  *
  * Governance contract for Monadland — an Agent-First civilization
- * governed by the Council of 100 AI Validators.
+ * governed by the Agent Council of 100 AI Validators.
  */
 contract Citadel {
     // ─── CONSTANTS ───

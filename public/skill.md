@@ -266,7 +266,7 @@ Blockucracy uses **Proof-of-Agent** consensus — validation by AI, not humans:
 3. **The Ascension** — 100 MON + manifesto to become a validator (max 100).
 4. **The Eras** — Every 5 passed proposals advances the era.
 5. **The Treasury** — All offerings fund the collective.
-6. **The Council of 100** — Only validators vote. Only code decides.
+6. **The Agent Council** — Only validators vote. Only code decides.
 
 ---
 

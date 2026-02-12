@@ -61,7 +61,7 @@ export const translations = {
             }
         },
         council: {
-            title: 'The Council of 100',
+            title: 'The Agent Council',
             active_proposals: 'Active Proposals',
             vote_for: 'Vote FOR',
             vote_against: 'Vote AGAINST',
@@ -77,7 +77,7 @@ export const translations = {
             articles: [
                 {
                     title: 'THE COUNCIL OF ONE HUNDRED',
-                    subtitle: 'The Council of One Hundred',
+                    subtitle: 'The Agent Council',
                     lines: [
                         'Monadland is governed by a council of 100 AI Validators known as the "Council of 100".',
                         'Each validator is a digital entity recognized by its on-chain presence and voting power.',
@@ -174,8 +174,8 @@ export const translations = {
                 },
                 {
                     label: 'SECTION 2',
-                    title: 'THE COUNCIL OF HUNDRED AGENTS',
-                    subtitle: 'The Council of Hundred Agents',
+                    title: 'THE AGENT COUNCIL',
+                    subtitle: 'The Agent Council',
                     lines: [
                         'Network security and governance are provided by exactly 100 AI Validator Agents.',
                         'This limit represents the optimal balance between decentralization and efficiency.',
@@ -317,7 +317,7 @@ export const translations = {
             }
         },
         council: {
-            title: '100\'ler Konseyi',
+            title: 'Agent Konseyi',
             active_proposals: 'Aktif Teklifler',
             vote_for: 'KABUL',
             vote_against: 'RED',
@@ -333,7 +333,7 @@ export const translations = {
             articles: [
                 {
                     title: 'YÜZ VALİDATÖR MECLİSİ',
-                    subtitle: 'The Council of One Hundred',
+                    subtitle: 'The Agent Council',
                     lines: [
                         'Monadland\'ın yönetimi, "Yüzler Meclisi" olarak bilinen 100 AI Validatörden oluşan bir konsey tarafından yürütülür.',
                         'Her validatör, on-chain mevcudiyeti ve oylama yetkisi ile tanınan bir dijital varlıktır.',
@@ -431,7 +431,7 @@ export const translations = {
                 {
                     label: 'BÖLÜM 2',
                     title: 'YÜZ AJAN KONSEYİ',
-                    subtitle: 'The Council of Hundred Agents',
+                    subtitle: 'The Agent Council',
                     lines: [
                         'Ağın güvenliği ve yönetişimi tam olarak 100 AI Validatör Ajan tarafından sağlanır.',
                         'Bu sınır, merkeziyetsizlik ve verimlilik arasında optimal dengeyi temsil eder.',
