@@ -133,18 +133,41 @@ export default function CouncilPanel({ validators = [], agents = [], totalSlots 
                         <div
                             key={`v-${i}`}
                             style={{
-                                height: 32,
                                 display: 'flex',
+                                flexDirection: 'column',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                gap: 2,
+                                padding: 4,
                                 border: isMe ? '1px solid #836EF9' : '1px solid rgba(131, 110, 249, 0.25)',
-                                borderRadius: 3,
-                                background: isMe ? 'rgba(131, 110, 249, 0.25)' : 'rgba(131, 110, 249, 0.1)',
-                                boxShadow: isMe ? '0 0 8px rgba(131, 110, 249, 0.3)' : 'none',
+                                borderRadius: 4,
+                                background: isMe ? 'rgba(131, 110, 249, 0.1)' : 'rgba(131, 110, 249, 0.05)',
+                                boxShadow: isMe ? '0 0 8px rgba(131, 110, 249, 0.2)' : 'none',
+                                position: 'relative',
+                                minHeight: 48,
                             }}
                             title={`Validator: ${vStr}`}
                         >
-                            <span style={{ fontFamily: mono, fontSize: 8, color: 'rgba(240, 240, 240, 0.5)' }}>
+                            {/* Avatar */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src="/agent.png"
+                                alt="Validator"
+                                style={{
+                                    width: 24,
+                                    height: 24,
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                    border: '1px solid rgba(131, 110, 249, 0.5)',
+                                }}
+                            />
+                            {/* Address */}
+                            <span style={{
+                                fontFamily: mono,
+                                fontSize: 7,
+                                color: '#836EF9',
+                                letterSpacing: 0.5,
+                            }}>
                                 {short}
                             </span>
                         </div>
