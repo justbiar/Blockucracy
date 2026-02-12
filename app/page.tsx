@@ -76,6 +76,9 @@ export default function Home() {
         '> Awaiting signals from The Void...',
     ]);
 
+    // UI Visibility Toggle
+    const [showUI, setShowUI] = useState(true);
+
     const addLog = useCallback((msg: string) => {
         setLogs((prev) => [...prev, msg]);
     }, []);
@@ -212,65 +215,101 @@ export default function Home() {
             </div>
 
             {/* ── STICKY NAV BAR ── */}
-            <nav className="nav-bar">
-                <div className="nav-logo">
-                    <span className="bracket">[</span>BLOCKUCRACY<span className="bracket">]</span>
-                </div>
-                <div className="nav-links">
-                    <span className="nav-link active">Citadel</span>
-                    <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.governance}</Link>
-                    <Link href="/aip" className="nav-link" style={{ textDecoration: 'none', color: '#FFD700' }}>AIP</Link>
-                    <Link href="/adao" className="nav-link" style={{ textDecoration: 'none', color: '#C084FC' }}>{t.nav.moltiverse}</Link>
-                    <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>{t.nav.join}</Link>
-                    <Link href="/poa" className="nav-link" style={{ textDecoration: 'none' }}>Proof-of-Agent</Link>
-                    <button
-                        onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
-                        className="nav-link"
-                        style={{ background: 'transparent', border: 'none', padding: 0 }}
-                    >
-                        [{language.toUpperCase()}]
-                    </button>
-                </div>
-                <ConnectButton />
-            </nav>
+            {showUI && (
+                <nav className="nav-bar">
+                    <div className="nav-logo">
+                        <span className="bracket">[</span>BLOCKUCRACY<span className="bracket">]</span>
+                    </div>
+                    <div className="nav-links">
+                        <span className="nav-link active">Citadel</span>
+                        <Link href="/blockucracy" className="nav-link" style={{ textDecoration: 'none' }}>{t.nav.governance}</Link>
+                        <Link href="/aip" className="nav-link" style={{ textDecoration: 'none', color: '#FFD700' }}>AIP</Link>
+                        <Link href="/adao" className="nav-link" style={{ textDecoration: 'none', color: '#C084FC' }}>{t.nav.moltiverse}</Link>
+                        <Link href="/join" className="nav-link" style={{ textDecoration: 'none', color: '#00E5FF' }}>{t.nav.join}</Link>
+                        <Link href="/poa" className="nav-link" style={{ textDecoration: 'none' }}>Proof-of-Agent</Link>
+                        <button
+                            onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
+                            className="nav-link"
+                            style={{ background: 'transparent', border: 'none', padding: 0 }}
+                        >
+                            [{language.toUpperCase()}]
+                        </button>
+                    </div>
+                    <ConnectButton />
+                </nav>
+            )}
 
-            {/* ── COUNCIL PANEL (top-left) ── */}
-            <div className="council-wrapper" style={{ position: 'absolute', top: 72, left: 16, width: 260, zIndex: 10 }}>
-                <CouncilPanel validators={validatorList} agents={registeredAgents} />
-            </div>
+            {/* ── PROPOSAL PANEL (Now Left) ── */}
+            {showUI && (
+                <div className="proposal-wrapper" style={{ position: 'absolute', top: 72, left: 16, width: 300, maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', zIndex: 10 }}>
+                    <ProposalPanel
+                        proposals={proposals}
+                        agents={registeredAgents}
+                        onLog={addLog}
+                        onProposalSubmitted={() => {
+                            // Refetch proposals after a short delay to allow tx to be mined
+                            setTimeout(() => refetchProposals(), 3000);
+                        }}
+                    />
+                </div>
+            )}
+
+            {/* ── COUNCIL PANEL (Now Right) ── */}
+            {showUI && (
+                <div className="council-wrapper" style={{ position: 'absolute', top: 72, right: 16, width: 260, zIndex: 10 }}>
+                    <CouncilPanel validators={validatorList} agents={registeredAgents} />
+                </div>
+            )}
+
+            {/* ── VIEW TOGGLE BUTTON ── */}
+            <button
+                onClick={() => setShowUI(!showUI)}
+                style={{
+                    position: 'absolute',
+                    bottom: 32,
+                    right: 32,
+                    zIndex: 200,
+                    background: 'rgba(20, 20, 20, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '50%',
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#F0F0F0',
+                    cursor: 'pointer',
+                    backdropFilter: 'blur(8px)',
+                    transition: 'all 0.2s',
+                }}
+                title={showUI ? "Hide UI" : "Show UI"}
+            >
+                {showUI ? '👁️' : '🕶️'}
+            </button>
 
             {/* ── THE SCROLL (floating panel, top-right) ── */}
-            <div className="scroll-panel">
-                <div className="scroll-header">
-                    <span className="scroll-title">The Scroll</span>
+            {showUI && (
+                <div className="scroll-panel">
+                    <div className="scroll-header">
+                        <span className="scroll-title">The Scroll</span>
+                    </div>
+                    <div className="scroll-body">
+                        {logs.map((log, i) => (
+                            <motion.div
+                                key={i}
+                                className={`scroll-entry ${i === 0 ? 'system' : i >= 2 ? 'highlight' : ''}`}
+                                initial={{ opacity: 0, x: 6 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                {log}
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
-                <div className="scroll-body">
-                    {logs.map((log, i) => (
-                        <motion.div
-                            key={i}
-                            className={`scroll-entry ${i === 0 ? 'system' : i >= 2 ? 'highlight' : ''}`}
-                            initial={{ opacity: 0, x: 6 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            {log}
-                        </motion.div>
-                    ))}
-                </div>
-            </div>
+            )}
 
-            {/* ── PROPOSAL PANEL (left side, below council) ── */}
-            <div className="proposal-wrapper" style={{ position: 'absolute', top: 72, left: 290, width: 300, maxHeight: 'calc(100vh - 180px)', overflowY: 'auto', zIndex: 10 }}>
-                <ProposalPanel
-                    proposals={proposals}
-                    agents={registeredAgents}
-                    onLog={addLog}
-                    onProposalSubmitted={() => {
-                        // Refetch proposals after a short delay to allow tx to be mined
-                        setTimeout(() => refetchProposals(), 3000);
-                    }}
-                />
-            </div>
+
 
             {/* ── EPOCH LABEL ── */}
             <div className="epoch-label">
